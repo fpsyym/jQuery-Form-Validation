@@ -1,0 +1,9 @@
+.val-box {
+	color: red;
+}
+.val-message {
+	display: none;
+}
+input.alert.error {
+	border: 1px solid red;
+}

@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>jQuery Form Validation</title>
+<link rel="stylesheet" href="form-val.css">
+<style>
+form {
+	font: 12px Arial;
+}
+form div {
+	margin-bottom: 5px;
+}
+form div label {
+	display: block;
+}
+form div input, form div select, form div textarea {
+	width: 100%;
+	padding: 4px;
+	border-radius: 2px;
+	border: 1px solid #999;
+}
+.container {
+	width: 500px;
+	margin: 0 auto;
+}
+</style>
+</head>
+<body>
+<div class="container">
+	<form id="testform">
+		<div class="field">
+			<label for="your_first_name">Your First Name</label>
+			<input type="text" id="your_first_name" name="your_first_name" class="required">
+			<div class="val-message">Please enter your first name</div>
+		</div>
+		<div class="field">
+			<label for="your_last_name">Your Last Name</label>
+			<input type="text" id="your_last_name" name="your_last_name" class="required">
+			<div class="val-message">Please enter your last name</div>
+		</div>
+		<div class="field">
+			<label for="web_address">Your Web Address</label>
+			<input type="url" id="web_address" name="web_address" class="required">
+			<div class="val-message">Please enter a valid URL</div>
+		</div>
+		<div class="field">
+			<label for="email_address">Email Address</label>
+			<input type="email" id="email_address" name="email_address" class="email">
+			<div class="val-message">Please enter a valid email address</div>
+		</div>
+		<button type="submit">Submit</button>
+		<button type="reset">Clear</button>
+	</form>
+</div>
+<script src="http://ajax.googleapis.com/ajax/libs/jquery/1.7.1/jquery.min.js"></script>
+<script src="jquery.form-validation.js"></script>
+<script>
+$(function(){
+	$('#testform').formval();
+})
+</script>
+</body>
+</html>
