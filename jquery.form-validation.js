@@ -1,7 +1,7 @@
 /**
  *
- * jQuery Form Validation plugin
- * $('.form').formval();
+ * jQuery Vent Form plugin
+ * $('.form').ventForm();
  *
  * Options:
  * - username: ID or Class of the field for the users name e.g. '#fullname'.
@@ -30,12 +30,12 @@
 ;(function($, window, document, undefined){
     'use strict';
 
-    $.fn.formval = function(options){
+    $.fn.ventForm = function(options){
         /* -- Defaults -- */
         // Our application defaults
         var defaults = {
-            username            : '#fullname',
-            validationMessage   : '.val-message',
+            username            : '#full_name',
+            validationMessage   : '.validationMessage',
             requireClass        : '.required',
             emailClass          : '.email',
             passClass           : '.pass',
@@ -53,7 +53,7 @@
             formSuccessMsgID    : '#success_message',
             defaultSuccessMsg   : 'You have successfully submitted the form',
             dataURL             : '',
-            successFunction     : function(){}
+            successFunction     : null
         };
 
         /* -- Settings -- */
@@ -95,6 +95,41 @@
                 $.error('Method ' +  method + ' does not exist on jQuery.fn_error');
             }
         }
+
+        // Center any element
+        $.fn.fn_center = function(method, element){
+            var el      = (element != null) ? $(element) : $(window);
+            var methods = {
+                all: function(){
+                    el.css('position', 'relative');
+                    this.css('position', 'absolute');
+                    this.css('top', ((el.height() - this.outerHeight()) / 2) + el.scrollTop() + 'px');
+                    this.css('left', ((el.width() - this.outerWidth()) / 2) + el.scrollLeft() + 'px');
+                    return this;
+                },
+                vertical: function(){
+                    el.css('position', 'relative');
+                    this.css('position', 'absolute');
+                    this.css('top', ((el.height() - this.outerHeight()) / 2) + el.scrollTop() + 'px');
+                    return this;
+                },
+                horizontal: function(){
+                    el.css('position', 'relative');
+                    this.css('position', 'absolute');
+                    this.css('left', ((el.width() - this.outerWidth()) / 2) + el.scrollLeft() + 'px');
+                    return this;
+                }
+            }
+            if(methods[method]){
+                return methods[method].apply(this, Array.prototype.slice.call(arguments, 1));
+            }
+            else if(typeof method === 'object' || !method){
+                return methods.all.apply(this, arguments);
+            }
+            else{
+                $.error('Method ' +  method + ' does not exist on jQuery.center');
+            }
+        }
         if(!Array.prototype.indexOf){
             Array.prototype.indexOf = function(obj, fromIndex){
                 if(fromIndex == null){
@@ -109,6 +144,21 @@
                 }
                 return -1;
             };
+        }
+
+        var utils = {
+            loadingAnimation: function(el, size, color){
+                $.getScript('http://heartcode-canvasloader.googlecode.com/files/heartcode-canvasloader-min-0.9.js', function(){
+                    var loader = new CanvasLoader(el);
+                    loader.setShape('spiral');
+                    loader.setDiameter(size);
+                    loader.setDensity(13);
+                    loader.setRange(0.6);
+                    loader.setSpeed(1);
+                    loader.setColor(color);
+                    loader.show();
+                });
+            }
         }
 
         return this.each(function(){
@@ -259,12 +309,19 @@
                 formValidated: function(){
                     // Disable the buttons
                     $('button', plg).attr('disabled', 'disabled');
+
+
+                    // Generate a random int for a unique loader ID
+                    var rn = Math.random() * (100 - 1) + 1;
+                    $('button[type="submit"]', plg).html('<div id="loader-' + rn + '"></div>');
+                    $('#loader').fn_center('all');
+                    utils.loadingAnimation('loader-' + rn, 13, '#333');
+
+
                     // Hide status messages
                     this.status_messages.hide();
                     // Remove the error message box
                     this.errorBox.remove();
-                    // Fade in the progress bar
-                    $('button[type="submit"]', plg).addClass('bar').parent().addClass('progress progress-striped active');
                 }
             }
 
@@ -273,7 +330,7 @@
 
             /* -- LocalStorage -- */
             // Save inputs
-            if(settings.saveInputs){
+            if(settings.saveInputs && Modernizr.localstorage){
                 app.getLocalStorage();
                 $('input, select, textarea', plg).change(function(){
                     var inputID = $(this).attr('name');
@@ -398,7 +455,7 @@
                     // If we are posting with Ajax:
                     if(settings.ajaxMode){
                         // If we have a custom post function
-                        if(settings.successFunction()){
+                        if($.isFunction(settings.successFunction)){
                             settings.successFunction();
                         }
                         // Default Ajax function
@@ -409,10 +466,10 @@
                                 url: app.form_action,
                                 data: plg.serialize(),
                                 success: function(){
+                                    // Fade out the form
+                                    plg.hide();
                                     // Fill the JS status messages and fade in
                                     app.status_messages.html('<p>' + app.successMsg + '</p>').fadeIn(500);
-                                    // Fade out the form
-                                    plg.fadeOut(500);
                                     // Clear all localStorage data from the form
                                     $('input, textarea, select', plg).fn_error('clear');
                                 },
