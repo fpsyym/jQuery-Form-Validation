@@ -5,4 +5,4 @@
 Adds some nifty jQuery validation and posts your form with Ajax (optional).
 
 ## Changelog
-*  `v. 1.0.0`
+*  `v. 0.2.0`
