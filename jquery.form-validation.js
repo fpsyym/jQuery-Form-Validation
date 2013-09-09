@@ -1,10 +1,10 @@
 /**
  *
  * jQuery Vent Form plugin
- * $('.form').ventForm();
+ * $('.form').formValidation();
  *
  * Options:
- * - username: ID or Class of the field for the users name e.g. '#fullname'.
+ * - username: ID or Class of the field for the users name e.g. '#full_name'.
  * - validationMessage: ID or Class of the field that contains the validation message e.g. '.validationMessage'.
  * - requireClass: Class or ID for required fields e.g. '.required'.
  * - emailClass: Class or ID for email fields e.g. '.email'.
@@ -20,37 +20,40 @@
  * - appendErrorToTitle: Boolean to enable whether the error should be appended to the field label or not.
  * - saveInputs: Boolean to enable localStorage.
  * - ajaxMode: Boolean. If true will post the URL provided in the "action" attribute with Ajax.
- * - formSuccessMsgID: ID of the form field that holds the success message. Not requried if defaultSuccessMsg is set.
+ * - formSuccessMsgID: ID of the form field that holds the success message. Not required if defaultSuccessMsg is set.
+ * - defaultErrorMsg: A default error message if one isn't set.
  * - defaultSuccessMsg: A message to display to the user when the form has been submitted. Requires ajaxMode to be true.
  * - dataURL: String. The URL or valid jQuery selector of a URL to post the data to. Requires ajaxMode to be true.
- * - successFunction: A function to pass when the form is validated. Requries ajaxMode to be true.
+ * - successFunction: A function to pass when the form is validated. Requires ajaxMode to be true.
  *
 **/
 
 ;(function($, window, document, undefined){
     'use strict';
 
-    $.fn.ventForm = function(options){
+    $.fn.formValidation = function(options){
         /* -- Defaults -- */
         // Our application defaults
         var defaults = {
             username            : '#full_name',
-            validationMessage   : '.validationMessage',
-            requireClass        : '.required',
-            emailClass          : '.email',
-            passClass           : '.pass',
-            passConfirmClass    : '.pass_confirm',
+            validationMessage   : 'validationMessage',
+            requireClass        : 'required',
+            emailClass          : 'email',
+            passClass           : 'pass',
+            passConfirmClass    : 'pass_confirm',
             errorClass          : 'alert error',
             errorBoxClass       : 'val-box',
             otherMessages       : '.status-messages',
             statusMessagesClass : 'js-status-message',
             emailRegEx          : /^([A-Za-z0-9_\-\.])+\@([A-Za-z0-9_\-\.])+\.([A-Za-z]{2,4})$/,
             passRegEx           : /^.*(?=.{8,})(?=.*[0-9])[a-zA-Z0-9]+$/,
+            showErrorMsg        : true,
             consecutiveErrors   : true,
             appendErrorToTitle  : true,
             saveInputs          : true,
             ajaxMode            : true,
             formSuccessMsgID    : '#success_message',
+            defaultErrorMsg     : 'Please enter a value',
             defaultSuccessMsg   : 'You have successfully submitted the form',
             dataURL             : '',
             successFunction     : null
@@ -167,6 +170,8 @@
             /* -- App methods -- */
             var app = {
                 init: function(){
+                    plg.attr('novalidate', 'novalidate');
+
                     $(settings.otherMessages).hide();
                     this.error_numeric = 'Must be a number';
                     this.form_action   = (settings.dataURL) ? settings.dataURL : plg.attr('action');
@@ -191,7 +196,8 @@
                         this.successMsg = settings.defaultSuccessMsg;
                     }
                     // Remove the error box
-                    this.errorBox.remove();
+                    this.errorBox.empty().remove();
+                    $('.' + settings.errorBoxClass).empty().remove();
 
                     // Create an error Array
                     this.errorArray = [];
@@ -237,65 +243,64 @@
                     if(this.errorArray.length > 0){
                         app.validated = false;
                         $.each(this.errorArray, function(i){
-                            var field      = $('#' + app.errorArray[i], plg);
+                            // Dont use $(this)
+                            var field = $('#' + app.errorArray[i], plg);
 
                             if(field.is('input[type="checkbox"]') || field.is('input[type="radio"]')){
                                 var labelField = field.parent().parent().find('.label');
-                                var valfield   = field.parent().parent().find(settings.validationMessage);
+                                var valfield   = field.parent().parent().find('.' + settings.validationMessage);
+                                var valmessage = (valfield.length) ? valfield.val() : settings.defaultErrorMsg;
                             }
                             else{
                                 var labelField = field.parent().find('label');
-                                var valfield   = field.parent().find(settings.validationMessage);
+                                var valfield   = field.parent().find('.' + settings.validationMessage);
+                                var valmessage = (valfield.length) ? valfield.val() : settings.defaultErrorMsg;
                             }
 
-
-                            if(settings.consecutiveErrors){
-                                if(!i){
-                                    // Set the error message
-                                    if(valfield.is('input')){
-                                        app.errorBox.text(valfield.val());
-                                    }
-                                    else {
-                                        app.errorBox.text(valfield.text());
-                                    }
-                                    // Add the error box.
-                                    if(settings.appendErrorToTitle){
-                                        labelField.append(app.errorBox);
-                                        app.errorBox.prepend(' - ');
-                                    }
-                                    else {
-                                        field.parent().prepend(app.errorBox);
-                                    }
-                                    // Fade in the error box.
-                                    app.errorBox.fadeIn(500);
-                                    // Focus on the field.
-                                    field.focus();
-                                }
-                            }
-                            else {
-                                // Add the error box.
-                                if(settings.appendErrorToTitle){
-                                    labelField.append('<span class="' + settings.errorBoxClass + '"></span>');
-                                    // Set the error message
-                                    if(valfield.is('input')){
-                                        $('.' + settings.errorBoxClass).text(' - ' + valfield.val());
-                                    }
-                                    else {
-                                        $('.' + settings.errorBoxClass).text(' - ' + valfield.text());
+                            if(settings.showErrorMsg){
+                                if(settings.consecutiveErrors){
+                                    if(!i){
+                                        // Set the error message
+                                        app.errorBox.text(valmessage);
+                                        // Add the error box.
+                                        if(settings.appendErrorToTitle){
+                                            app.errorBox.prepend(' - ');
+                                            labelField.append(app.errorBox);
+                                        }
+                                        else {
+                                            field.parent().prepend(app.errorBox);
+                                        }
+                                        // Fade in the error box.
+                                        app.errorBox.fadeIn(500);
+                                        // Focus on the field.
+                                        field.focus();
                                     }
                                 }
                                 else {
-                                    field.parent().prepend('<span class="' + settings.errorBoxClass + '"></span>');
-                                    // Set the error message
-                                    if(valfield.is('input')){
-                                        $('.' + settings.errorBoxClass).text(valfield.val());
+                                    // Add the error box.
+                                    if(settings.appendErrorToTitle){
+                                        labelField.append('<span class="' + settings.errorBoxClass + '"></span>');
+                                        // Set the error message
+                                        if(valfield.is('input')){
+                                            $('.' + settings.errorBoxClass).text(' - ' + valfield.val());
+                                        }
+                                        else {
+                                            $('.' + settings.errorBoxClass).text(' - ' + valfield.text());
+                                        }
                                     }
                                     else {
-                                        $('.' + settings.errorBoxClass).text(valfield.text());
+                                        field.parent().prepend('<span class="' + settings.errorBoxClass + '"></span>');
+                                        // Set the error message
+                                        if(valfield.is('input')){
+                                            $('.' + settings.errorBoxClass).text(valfield.val());
+                                        }
+                                        else {
+                                            $('.' + settings.errorBoxClass).text(valfield.text());
+                                        }
                                     }
+                                    // Fade in the error box.
+                                    $('.' + settings.errorBoxClass).fadeIn(500);
                                 }
-                                // Fade in the error box.
-                                $('.' + settings.errorBoxClass).fadeIn(500);
                             }
                         });
                     }
@@ -310,13 +315,12 @@
                     // Disable the buttons
                     $('button', plg).attr('disabled', 'disabled');
 
-
                     // Generate a random int for a unique loader ID
                     var rn = Math.random() * (100 - 1) + 1;
+                    app.buttonName = $('button[type="submit"]', plg).text();
                     $('button[type="submit"]', plg).html('<div id="loader-' + rn + '"></div>');
                     $('#loader').fn_center('all');
                     utils.loadingAnimation('loader-' + rn, 13, '#333');
-
 
                     // Hide status messages
                     this.status_messages.hide();
@@ -357,91 +361,73 @@
 
             /* -- OnLoad Functions -- */
             $(function(){
-                if($('.status_messages').length) $('.status_messages').hide();
+                /* -- Hide status messages for JS users -- */
+                if($('.status_messages').length){
+                    $('.status_messages').hide();
+                }
+
+                /* -- Add required class to label of each form -- */
                 $(settings.requireClass, plg).each(function(){
-                    $(this).parent().find('label').addClass('required');
+                    $(this).parent().find('label, .label').addClass('required');
                 });
-                $('input[type="url"]', this).each(function(){
-                    app.checkhttp($(this));
-                });
-            });
 
                 /* -- URL Fields -- */
-            $('input[type="url"]', this).each(function(){
-                $(this).on('blur', function(){
-                    app.checkhttp($(this));
+                $('input[type="url"]', this).each(function(){
+                    $(this).on('blur', function(){
+                        app.checkhttp($(this));
+                    });
                 });
-            });
 
-            /* -- Resetting the form -- */
-            $('button[type="reset"], input[type="reset"]', plg).on('click', function(){
-                app.resetForm();
+                /* -- Resetting the form -- */
+                $('button[type="reset"], input[type="reset"]', plg).on('click', function(){
+                    app.resetForm();
+                });
             });
 
             /* -- Submitting the form -- */
             plg.on('submit', function(){
                 app.initForm();
 
-                /* -- Required fields -- */
-                $('input' + settings.requireClass + ', textarea' + settings.requireClass + ', select' + settings.requireClass, this).each(function(){
-                    if($(this).val().length == 0 || $(this).val() == undefined){
-                        app.addToError($(this));
-                    }
-                    else{
-                        $(this).fn_error('off');
-                    }
-                });
-
-                /* -- Email fields -- */
-                $('input' + settings.emailClass, this).each(function(){
-                    if(!settings.emailRegEx.test($(this).val())){
-                        app.addToError($(this));
-                    }
-                    else{
-                        $(this).fn_error('off');
-                    }
-                });
-
-                /* -- Password fields -- */
-                $('input' + settings.passClass, this).each(function(){
-                    if(!settings.regPass.test($(this).val())){
-                        app.addToError($(this));
-                    }
-                    else{
-                        $(this).fn_error('off');
-                    }
-                });
-
-                /* -- Password confirmation fields -- */
-                $('input' + settings.passConfirmClass, this).each(function(){
-                    if($(this).val() !== $('input.' + settings.passClass).val()){
-                        app.addToError($(this));
-                    }
-                    else{
-                        $(this).fn_error('off');
-                    }
-                });
-
-                /* -- Radio & Checkbox inputs -- */
+                // Create an array for checkboxes and radio inputs
                 var groupArray = [];
-                $('input[type="radio"]' + settings.requireClass + ', input[type="checkbox"]' + settings.requireClass + '', this).each(function(){
-                    var groupName = $(this).attr('name');
-                    if($.inArray(groupName, groupArray) == -1){
-                        groupArray.push(groupName);
+
+                /* -- Cycling through the fields in order -- */
+                $('.' + settings.requireClass + ',.' + settings.emailClass + ',.' + settings.passClass + ',.' + settings.passConfirmClass, this).each(function(){
+                    // Required fields
+                    if($(this).hasClass(settings.requireClass) && $(this).val().length == 0 || $(this).val() == undefined){
+                        app.addToError($(this));
                     }
-                });
-                $.each(groupArray, function(i){
-                    var field = $('input[name="' + groupArray[i] + '"]').serializeArray();
-                    if(field.length == 0){
-                        app.validated = false;
-                        $('input[name="' + groupArray[i] + '"]').fn_error('on').parent().fn_error('on').next().fn_error('on');
-                        var id = $('input[name="' + groupArray[i] + '"]').attr('id');
-                        if(app.errorArray.indexOf(id) == -1){
-                            app.errorArray.push(id);
+                    // Email fields
+                    else if($(this).hasClass(settings.emailClass) && !settings.emailRegEx.test($(this).val())){
+                        app.addToError($(this));
+                    }
+                    // Password fields
+                    else if($(this).hasClass(settings.passClass) && !settings.regPass.test($(this).val())){
+                        app.addToError($(this));
+                    }
+                    // Password confirmation fields
+                    else if($(this).hasClass(settings.passConfirmClass) && $(this).val() !== $('input.' + settings.passClass).val()){
+                        app.addToError($(this));
+                    }
+                    // Radio & Checkbox fields
+                    else if($(this).hasClass(settings.requireClass) && $(this).is('input[type="radio"]') || $(this).is('input[type="checkbox"]')){
+                        var groupName = $(this).attr('name');
+
+                        var field = $('input[name="' + groupName + '"]');
+                        if(field.serializeArray().length == 0){
+                            $(this).fn_error('on').parent().parent().find('.label, label').fn_error('on');
+                            var id = field.attr('id');
+                            if(app.errorArray.indexOf(id) == -1){
+                                app.errorArray.push(id);
+                            }
+                        }
+                        else{
+                            $(this).fn_error('off').parent().parent().find('.label, label').fn_error('off');
                         }
                     }
+                    // Else
                     else{
-                        $('input[name="' + groupArray[i] + '"]').fn_error('off').parent().fn_error('off').next().fn_error('off');
+                        $(this).fn_error('off');
                     }
                 });
 
@@ -474,7 +460,9 @@
                                     $('input, textarea, select', plg).fn_error('clear');
                                 },
                                 error: function(xhr, ajaxOptions, thrownError){
-                                    alert('Failure')
+                                    alert('Failure');
+                                    $('button', plg).removeAttr('disabled');
+                                    $('button[type="submit"]', plg).html(app.buttonName);
                                 }
                             });
                         }
@@ -492,5 +480,157 @@
 
         });
     };
+
+    /* -- Email Suggester -- */
+    $(function(){
+        $('.email, input[type="email"]').each(function(){
+            var suggestion = $('<div class="suggestion">Did you mean <a href="#" class="alternate_email"><span class="toplevel">something</span>@<span class="dom">yourdomain.com</span></a>?</div>');
+            $(this).after(suggestion.hide());
+        });
+        if(EMAIL !== undefined && EMAIL.emailsuggest !== undefined){
+            if(EMAIL.emailsuggest.init !== undefined){
+                EMAIL.emailsuggest.init();
+            }
+            if(EMAIL.emailsuggest.query !== undefined && EMAIL.emailsuggest.query.init !== undefined){
+                EMAIL.emailsuggest.query.init();
+            }
+        }
+    });
+    var lib = {};
+    var EMAIL = {
+        Models: {},
+        Collections: {}
+    };
+    lib.validators = {
+        emailDomainSuggester: function(a){
+            var b = new Array(
+                "aol.com",
+                "bellsouth.net",
+                "btinternet.com",
+                "btopenworld.com",
+                "blueyonder.co.uk",
+                "comcast.net",
+                "cox.net",
+                "gmail.com",
+                "google.com",
+                "googlemail.com",
+                "hotmail.co.uk",
+                "hotmail.com",
+                "hotmail.fr",
+                "hotmail.it",
+                "icloud.com",
+                "live.com",
+                "mac.com",
+                "mail.com",
+                "me.com",
+                "msn.com",
+                "o2.co.uk",
+                "orange.co.uk",
+                "outlook.com",
+                "outlook.co.uk",
+                "sbcglobal.net",
+                "verizon.net",
+                "virginmedia.com",
+                "yahoo.com",
+                "yahoo.co.uk",
+                "yahoo.com.tw",
+                "yahoo.es",
+                "yahoo.fr"
+            );
+            var c = a.split("@");
+            var d;
+            var e = 99;
+            var f = null;
+            for(var g = 0; g < b.length; g++){
+                d = this.stringDistance(b[g], c[1]);
+                if(d < e){
+                    e = d;
+                    f = b[g]
+                }
+            }
+            if(e <= 2 && f !== null && f !== c[1]){
+                return{
+                    address: c[0],
+                    domain: f
+                }
+            }
+            else{
+                return false
+            }
+        },
+        stringDistance: function(a, b){
+            if(a == null || a.length === 0){
+                if(b == null || b.length === 0){
+                    return 0
+                }
+                else{
+                    return b.length
+                }
+            }
+            if(b == null || b.length === 0){
+                return a.length
+            }
+            var c = 0;
+            var d = 0;
+            var e = 0;
+            var f = 0;
+            var g = 5;
+            while(c + d < a.length && c + e < b.length){
+                if(a[c + d] == b[c + e]){
+                    f++
+                }
+                else{
+                    d = 0;
+                    e = 0;
+                    for(var h = 0; h < g; h++){
+                        if(c + h < a.length && a[c + h] == b[c]){
+                            d = h;
+                            break
+                        }
+                        if(c + h < b.length && a[c] == b[c + h]){
+                            e = h;
+                            break
+                        }
+                    }
+                }
+                c++
+            }
+            return (a.length + b.length) / 2 - f
+        }
+    };
+    EMAIL.emailsuggest = {
+        query: {
+            init: function(){
+                this.suggestedEmail = null;
+                $('.email, input[type="email"]').on('blur', this.suggestEmail);
+                $('.suggestion .alternate_email').on('click', this.fillInSuggestedEmail);
+            },
+            suggestEmail: function(a){
+                var b = $(this).val();
+                var c = lib.validators.emailDomainSuggester(b);
+                var d = $(this).parent().find('.suggestion');
+                var e = $('.toplevel', d);
+                var f = $('.dom', d);
+                if(c){
+                    e.html(c.address);
+                    f.html(c.domain);
+                    EMAIL.emailsuggest.query.suggestedEmail = c;
+                    d.slideDown(500);
+                }
+                else{
+                    EMAIL.emailsuggest.query.suggestedEmail = null;
+                    d.slideUp(500);
+                }
+            },
+            fillInSuggestedEmail: function(e, a){
+                e.preventDefault();
+                var b = EMAIL.emailsuggest.query.suggestedEmail;
+                if(b){
+                    $(this).parent().parent().find('.email').val(b.address + '@' + b.domain);
+                    $(this).parent('.suggestion').slideUp(500)
+                }
+            }
+        }
+    }
 
 })(jQuery, window, document);
