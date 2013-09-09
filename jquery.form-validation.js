@@ -334,7 +334,7 @@
 
             /* -- LocalStorage -- */
             // Save inputs
-            if(settings.saveInputs && Modernizr.localstorage){
+            if(settings.saveInputs && typeof(Storage)!== 'undefined'){
                 app.getLocalStorage();
                 $('input, select, textarea', plg).change(function(){
                     var inputID = $(this).attr('name');
