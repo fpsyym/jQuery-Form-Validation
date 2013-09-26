@@ -5,11 +5,11 @@
  *
  * Options:
  * - username: ID or Class of the field for the users name e.g. '#full_name'.
- * - validationMessage: ID or Class of the field that contains the validation message e.g. '.validationMessage'.
- * - requireClass: Class or ID for required fields e.g. '.required'.
- * - emailClass: Class or ID for email fields e.g. '.email'.
- * - passClass: Class or ID for password fields e.g. '.pass'.
- * - passConfirmClass: Class or ID for password confirm field e.g. '.pass_confirm'.
+ * - validationMessage: Class of the field that contains the validation message e.g. 'validationMessage'.
+ * - requireClass: Class for required fields e.g. 'required'.
+ * - emailClass: Class for email fields e.g. 'email'.
+ * - passClass: Class for password fields e.g. 'pass'.
+ * - passConfirmClass: Class for password confirm field e.g. 'pass_confirm'.
  * - errorClass: Class to add to each field.
  * - errorBoxClass: Class of the box to display the error message in e.g. 'val_box'.
  * - otherMessages: Class or ID of an element that contains server side messages you might want to hide with this plugin.
@@ -249,12 +249,12 @@
                             if(field.is('input[type="checkbox"]') || field.is('input[type="radio"]')){
                                 var labelField = field.parent().parent().find('.label');
                                 var valfield   = field.parent().parent().find('.' + settings.validationMessage);
-                                var valmessage = (valfield.length) ? valfield.val() : settings.defaultErrorMsg;
+                                var valmessage = (valfield.length) ? valfield.val() || valfield.text() : settings.defaultErrorMsg;
                             }
                             else{
                                 var labelField = field.parent().find('label');
                                 var valfield   = field.parent().find('.' + settings.validationMessage);
-                                var valmessage = (valfield.length) ? valfield.val() : settings.defaultErrorMsg;
+                                var valmessage = (valfield.length) ? valfield.val() || valfield.text() : settings.defaultErrorMsg;
                             }
 
                             if(settings.showErrorMsg){
@@ -281,22 +281,12 @@
                                     if(settings.appendErrorToTitle){
                                         labelField.append('<span class="' + settings.errorBoxClass + '"></span>');
                                         // Set the error message
-                                        if(valfield.is('input')){
-                                            $('.' + settings.errorBoxClass).text(' - ' + valfield.val());
-                                        }
-                                        else {
-                                            $('.' + settings.errorBoxClass).text(' - ' + valfield.text());
-                                        }
+                                        $('.' + settings.errorBoxClass).text(' - ' + valmessage);
                                     }
                                     else {
                                         field.parent().prepend('<span class="' + settings.errorBoxClass + '"></span>');
                                         // Set the error message
-                                        if(valfield.is('input')){
-                                            $('.' + settings.errorBoxClass).text(valfield.val());
-                                        }
-                                        else {
-                                            $('.' + settings.errorBoxClass).text(valfield.text());
-                                        }
+                                        $('.' + settings.errorBoxClass).text(' - ' + valmessage);
                                     }
                                     // Fade in the error box.
                                     $('.' + settings.errorBoxClass).fadeIn(500);
@@ -334,7 +324,7 @@
 
             /* -- LocalStorage -- */
             // Save inputs
-            if(settings.saveInputs && typeof(Storage)!== 'undefined'){
+            if(settings.saveInputs && typeof(Storage) !== 'undefined'){
                 app.getLocalStorage();
                 $('input, select, textarea', plg).change(function(){
                     var inputID = $(this).attr('name');
@@ -364,6 +354,11 @@
                 /* -- Hide status messages for JS users -- */
                 if($('.status_messages').length){
                     $('.status_messages').hide();
+                }
+
+                /* -- Hide validation messages -- */
+                if($('.' + settings.validationMessage).length){
+                    $('.' + settings.validationMessage).hide();
                 }
 
                 /* -- Add required class to label of each form -- */
