@@ -319,6 +319,128 @@
                 }
             }
 
+            var emailSuggester = {
+                init: function(el){
+                    var email_val  = el.val(),
+                        match_val  = emailSuggester.getMatch(email_val);
+
+                    this.suggestion = el.next('.suggestion');
+                    this.revealSuggestion(el, match_val);
+                },
+                domains: function(){
+                    var domains = [
+                        'aol.com',
+                        'bellsouth.net',
+                        'btinternet.com',
+                        'btopenworld.com',
+                        'blueyonder.co.uk',
+                        'comcast.net',
+                        'cox.net',
+                        'gmail.com',
+                        'google.com',
+                        'googlemail.com',
+                        'hotmail.co.uk',
+                        'hotmail.com',
+                        'hotmail.fr',
+                        'hotmail.it',
+                        'icloud.com',
+                        'live.com',
+                        'mac.com',
+                        'mail.com',
+                        'me.com',
+                        'msn.com',
+                        'o2.co.uk',
+                        'orange.co.uk',
+                        'outlook.com',
+                        'outlook.co.uk',
+                        'sbcglobal.net',
+                        'verizon.net',
+                        'virginmedia.com',
+                        'yahoo.com',
+                        'yahoo.co.uk',
+                        'yahoo.com.tw',
+                        'yahoo.es',
+                        'yahoo.fr'
+                    ];
+
+                    return domains;
+                },
+                getMatch: function(query){
+                    var limit   = 99;
+                    var query   = query.split('@');
+                    var domains = emailSuggester.domains();
+
+                    for(var i = 0; i < domains.length; i++){
+                        var distance = emailSuggester.levenshteinDistance(domains[i], query[1]);
+                        if(distance < limit){
+                            limit = distance;
+                            var domain = domains[i];
+                        }
+                    }
+                    if(limit <= 2 && domain !== null && domain !== query[1]){
+                        return{
+                            address: query[0],
+                            domain: domain
+                        }
+                    }
+                    else{
+                        return false;
+                    }
+                },
+                levenshteinDistance: function(a, b){
+                    if(a == null || a.length === 0){
+                        if(b == null || b.length === 0){
+                            return 0
+                        }
+                        else{
+                            return b.length
+                        }
+                    }
+                    if(b == null || b.length === 0){
+                        return a.length
+                    }
+                    var c = 0;
+                    var d = 0;
+                    var e = 0;
+                    var f = 0;
+                    var g = 5;
+                    while(c + d < a.length && c + e < b.length){
+                        if(a[c + d] == b[c + e]){
+                            f++
+                        }
+                        else{
+                            d = 0;
+                            e = 0;
+                            for(var h = 0; h < g; h++){
+                                if(c + h < a.length && a[c + h] == b[c]){
+                                    d = h;
+                                    break
+                                }
+                                if(c + h < b.length && a[c] == b[c + h]){
+                                    e = h;
+                                    break
+                                }
+                            }
+                        }
+                        c++
+                    }
+                    return (a.length + b.length) / 2 - f
+                },
+                revealSuggestion: function(el, result){
+                    if(result){
+                        $('.address', this.suggestion).text(result.address);
+                        $('.domain', this.suggestion).text(result.domain);
+                        this.suggestion.stop(true, false).slideDown(350);
+
+                        $('.alternative-email').on('click', function(e){
+                            e.preventDefault();
+                            el.val(result.address + '@' + result.domain);
+                            emailSuggester.suggestion.stop(true, false).slideUp(350);
+                        });
+                    }
+                }
+            }
+
             /* -- Initialise the app -- */
             app.init();
 
@@ -367,7 +489,7 @@
                 });
 
                 /* -- URL Fields -- */
-                $('input[type="url"]', this).each(function(){
+                $('input[type="url"]', plg).each(function(){
                     $(this).on('blur', function(){
                         app.checkhttp($(this));
                     });
@@ -376,6 +498,18 @@
                 /* -- Resetting the form -- */
                 $('button[type="reset"], input[type="reset"]', plg).on('click', function(){
                     app.resetForm();
+                });
+
+                /* -- Email suggester -- */
+                $('.email', plg).each(function(){
+                    var suggestion = $('<div class="suggestion">Did you mean <a href="#" class="alternative-email"><span class="address">address</span>@<span class="domain">yourdomain.com</span></a>?</div>');
+                    $(this).after(suggestion.hide());
+
+                    $(this).on({
+                        blur: function(){
+                            emailSuggester.init($(this));
+                        }
+                    });
                 });
             });
 
@@ -475,157 +609,5 @@
 
         });
     };
-
-    /* -- Email Suggester -- */
-    $(function(){
-        $('.email, input[type="email"]').each(function(){
-            var suggestion = $('<div class="suggestion">Did you mean <a href="#" class="alternate_email"><span class="toplevel">something</span>@<span class="dom">yourdomain.com</span></a>?</div>');
-            $(this).after(suggestion.hide());
-        });
-        if(EMAIL !== undefined && EMAIL.emailsuggest !== undefined){
-            if(EMAIL.emailsuggest.init !== undefined){
-                EMAIL.emailsuggest.init();
-            }
-            if(EMAIL.emailsuggest.query !== undefined && EMAIL.emailsuggest.query.init !== undefined){
-                EMAIL.emailsuggest.query.init();
-            }
-        }
-    });
-    var lib = {};
-    var EMAIL = {
-        Models: {},
-        Collections: {}
-    };
-    lib.validators = {
-        emailDomainSuggester: function(a){
-            var b = new Array(
-                "aol.com",
-                "bellsouth.net",
-                "btinternet.com",
-                "btopenworld.com",
-                "blueyonder.co.uk",
-                "comcast.net",
-                "cox.net",
-                "gmail.com",
-                "google.com",
-                "googlemail.com",
-                "hotmail.co.uk",
-                "hotmail.com",
-                "hotmail.fr",
-                "hotmail.it",
-                "icloud.com",
-                "live.com",
-                "mac.com",
-                "mail.com",
-                "me.com",
-                "msn.com",
-                "o2.co.uk",
-                "orange.co.uk",
-                "outlook.com",
-                "outlook.co.uk",
-                "sbcglobal.net",
-                "verizon.net",
-                "virginmedia.com",
-                "yahoo.com",
-                "yahoo.co.uk",
-                "yahoo.com.tw",
-                "yahoo.es",
-                "yahoo.fr"
-            );
-            var c = a.split("@");
-            var d;
-            var e = 99;
-            var f = null;
-            for(var g = 0; g < b.length; g++){
-                d = this.stringDistance(b[g], c[1]);
-                if(d < e){
-                    e = d;
-                    f = b[g]
-                }
-            }
-            if(e <= 2 && f !== null && f !== c[1]){
-                return{
-                    address: c[0],
-                    domain: f
-                }
-            }
-            else{
-                return false
-            }
-        },
-        stringDistance: function(a, b){
-            if(a == null || a.length === 0){
-                if(b == null || b.length === 0){
-                    return 0
-                }
-                else{
-                    return b.length
-                }
-            }
-            if(b == null || b.length === 0){
-                return a.length
-            }
-            var c = 0;
-            var d = 0;
-            var e = 0;
-            var f = 0;
-            var g = 5;
-            while(c + d < a.length && c + e < b.length){
-                if(a[c + d] == b[c + e]){
-                    f++
-                }
-                else{
-                    d = 0;
-                    e = 0;
-                    for(var h = 0; h < g; h++){
-                        if(c + h < a.length && a[c + h] == b[c]){
-                            d = h;
-                            break
-                        }
-                        if(c + h < b.length && a[c] == b[c + h]){
-                            e = h;
-                            break
-                        }
-                    }
-                }
-                c++
-            }
-            return (a.length + b.length) / 2 - f
-        }
-    };
-    EMAIL.emailsuggest = {
-        query: {
-            init: function(){
-                this.suggestedEmail = null;
-                $('.email, input[type="email"]').on('blur', this.suggestEmail);
-                $('.suggestion .alternate_email').on('click', this.fillInSuggestedEmail);
-            },
-            suggestEmail: function(a){
-                var b = $(this).val();
-                var c = lib.validators.emailDomainSuggester(b);
-                var d = $(this).parent().find('.suggestion');
-                var e = $('.toplevel', d);
-                var f = $('.dom', d);
-                if(c){
-                    e.html(c.address);
-                    f.html(c.domain);
-                    EMAIL.emailsuggest.query.suggestedEmail = c;
-                    d.slideDown(500);
-                }
-                else{
-                    EMAIL.emailsuggest.query.suggestedEmail = null;
-                    d.slideUp(500);
-                }
-            },
-            fillInSuggestedEmail: function(e, a){
-                e.preventDefault();
-                var b = EMAIL.emailsuggest.query.suggestedEmail;
-                if(b){
-                    $(this).parent().parent().find('.email').val(b.address + '@' + b.domain);
-                    $(this).parent('.suggestion').slideUp(500)
-                }
-            }
-        }
-    }
 
 })(jQuery, window, document);
