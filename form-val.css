@@ -1,9 +1,14 @@
+:focus {
+	outline: none;
+}
 .val-box {
-	color: red;
+	color: rgb(190, 25, 25);
 }
 .val-message {
 	display: none;
 }
-input.alert.error {
-	border: 1px solid red;
+.alert.error {
+	border: 1px solid rgb(190, 25, 25);
+	color: white;
+	background: rgb(245, 172, 172);
 }

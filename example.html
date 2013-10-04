@@ -4,7 +4,7 @@
 <title>jQuery Form Validation</title>
 <link rel="stylesheet" href="form-val.css">
 <style>
-form {
+body, input, select, textarea {
 	font: 12px Arial;
 }
 form div {
@@ -19,6 +19,9 @@ form div input, form div select, form div textarea {
 	border-radius: 2px;
 	border: 1px solid #999;
 }
+form div textarea {
+	height: 100px;
+}
 .container {
 	width: 500px;
 	margin: 0 auto;
@@ -29,23 +32,23 @@ form div input, form div select, form div textarea {
 <div class="container">
 	<form id="testform">
 		<div class="field">
-			<label for="your_first_name">Your First Name</label>
-			<input type="text" id="your_first_name" name="your_first_name" class="required">
+			<label for="full_name">Full Name</label>
+			<input type="text" name="full_name" id="full_name" class="required">
 			<div class="val-message">Please enter your first name</div>
 		</div>
 		<div class="field">
-			<label for="your_last_name">Your Last Name</label>
-			<input type="text" id="your_last_name" name="your_last_name" class="required">
-			<div class="val-message">Please enter your last name</div>
-		</div>
-		<div class="field">
 			<label for="web_address">Your Web Address</label>
-			<input type="url" id="web_address" name="web_address" class="required">
+			<input type="url" name="web_address" id="web_address" class="required">
 			<div class="val-message">Please enter a valid URL</div>
 		</div>
 		<div class="field">
 			<label for="email_address">Email Address</label>
-			<input type="email" id="email_address" name="email_address" class="email">
+			<input type="email" name="email_address" id="email_address" class="email">
+			<div class="val-message">Please enter a valid email address</div>
+		</div>
+		<div class="field">
+			<label for="your_message">Your Message</label>
+			<textarea name="your_message" id="your_message" class="required"></textarea>
 			<div class="val-message">Please enter a valid email address</div>
 		</div>
 		<button type="submit">Submit</button>
