@@ -30,7 +30,7 @@
     "bugs"    : "https://github.com/sdellow/jQuery-Form-Validation/issues",
     "homepage": "https://github.com/sdellow/jQuery-Form-Validation",
     "docs"    : "https://github.com/sdellow/jQuery-Form-Validation",
-    "download": "http://code.jquery.com/#form-validation",
+    "download": "https://github.com/sdellow/jQuery-Form-Validation/archive/master.zip",
     "dependencies": {
         "jquery": ">=1.5"
     }
