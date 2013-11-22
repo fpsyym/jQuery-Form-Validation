@@ -322,7 +322,7 @@
             app.init = function(){
                 plg.attr('novalidate', 'novalidate');
 
-                $(settings.otherMessages).hide();
+                $(settings.otherMessages, plg).hide();
                 this.error_numeric = 'Must be a number';
                 this.form_action   = (settings.dataURL) ? settings.dataURL : plg.attr('action');
 
