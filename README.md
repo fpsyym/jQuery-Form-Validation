@@ -132,4 +132,4 @@ Please see `example.html` for some, er, example markup!
 	- Description: A function to pass when the form is validated. Requires ajaxMode to be true.
 
 ## Changelog
-*  `v. 1.0.0`
+*  `v. 1.0.1`
