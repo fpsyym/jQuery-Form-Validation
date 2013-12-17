@@ -1,8 +1,7 @@
 {
     "name"       : "form-validation",
     "title"      : "jQuery Form Validation",
-    "description": "Adds some very customisable, nifty jQuery validation to your forms and allows you to post the form with Ajax (entirely optional!). Works with all types of inputs, but specifically: `text`, `textarea`, `email`, `select`, `radio`, `checkbox`.
-    Features customised validation fields, ajax posting, localStorage saving, email domain checker and more!",
+    "description": "Adds some very customisable, nifty jQuery validation to your forms and allows you to post the form with Ajax (entirely optional!). Works with all types of inputs, but specifically: `text`, `textarea`, `email`, `select`, `radio`, `checkbox`. Features customised validation fields, ajax posting, localStorage saving, email domain checker and more!",
     "keywords"   : [
         "form",
         "validation",
@@ -10,7 +9,8 @@
         "validate",
         "localStorage",
         "email",
-        "domain checker"
+        "domain",
+        "checker"
     ],
     "version": "1.0.0",
     "author" : {
