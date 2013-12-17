@@ -9,6 +9,10 @@
 }
 .alert.error {
 	border: 1px solid rgb(190, 25, 25);
-	color: white;
 	background: rgb(245, 172, 172);
+}
+label.alert.error {
+	color: #ff0000;
+	border: 0;
+	background: none;
 }

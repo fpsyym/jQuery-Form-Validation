@@ -16,6 +16,7 @@
  * - statusMessagesClass: Class of the box to apply to the JavaScript status messages box 'js_status_message'.
  * - emailRegEx         : Default RegEx to check against email addresses.
  * - passRegEx          : Default RegEx to check against passwords.
+ * - showErrorMsg       : Boolean to enable whether an error message should be shown at all.
  * - consecutiveErrors  : Boolean to enable whether all errors should show at once or consecutively.
  * - appendErrorToTitle : Boolean to enable whether the error should be appended to the field label or not.
  * - saveInputs         : Boolean to enable localStorage.
