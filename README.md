@@ -17,7 +17,7 @@ Please see `example.html` for some, er, example markup!
 
 ## Options
 - __username__
-	- Type: __String (ID or Class of valid element)_
+	- Type: _String (ID or Class of valid element)_
 	- Default: `'#full_name'`
 	- Description: Used to display the users name on successful send of the form.
 
